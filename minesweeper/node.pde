@@ -2,13 +2,14 @@ class Node {
   //PVector position = new PVector();
   int xGrid = 0;
   int yGrid = 0;
-  boolean hasMine;
-  
-  Node() {}
+  boolean hasMine = false;
+  boolean revealed = false;
+
+  Node() {  }
   Node(int x, int y) {
     this.xGrid = x;
     this.yGrid = y;
   }
-
+  
   
 }
