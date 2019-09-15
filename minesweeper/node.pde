@@ -4,6 +4,7 @@ class Node {
   int yGrid = 0;
   boolean hasMine = false;
   boolean revealed = false;
+  int minesAround;
 
   Node() {  }
   Node(int x, int y) {
