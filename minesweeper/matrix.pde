@@ -1,12 +1,11 @@
 class Matrix {
   Node[][] grid;
   ArrayList<Node> revealed = new ArrayList<Node>();
+  ArrayList<Node>kebabsPlaced = new ArrayList<Node>();
+  
   Matrix(int xSize, int ySize) {
     this.grid = new Node[xSize][ySize];
   }
-
-
-
 
   void fillGrid() {
     for (int x = 0; x < grid.length; x++) {
@@ -30,51 +29,104 @@ class Matrix {
           rect(worldPos.x, worldPos.y, nodeSize, nodeSize);
           pop();
         } else {
-          if (this.grid[x][y].hasMine) {
-            push();
-            fill(255, 0, 0);
-            PVector worldPos = grid2worldPosition(this.grid[x][y]);
-            rect(worldPos.x, worldPos.y, nodeSize, nodeSize);
-            pop();
-          } else {
+          if (!this.grid[x][y].hasMine) {
             push();
             fill(0, 255, 0);
             PVector worldPos = grid2worldPosition(this.grid[x][y]);
             rect(worldPos.x, worldPos.y, nodeSize, nodeSize);
             pop();
-          }
+          } 
         }
       }
     }
   }
 
-  void showRevealed() {
-    for (int i = 0; i<revealed.size(); i++) {
-      if (revealed.get(i).minesAround != 0) {
-        fill(0);
-        text(str(revealed.get(i).minesAround), grid2worldPosition(revealed.get(i)).x + nodeSize/2, grid2worldPosition(revealed.get(i)).y+nodeSize/2); //display number of mines around the node
-      } else {
-        //ce vidimo
-      }
-    }
-  }
+  
 
   void explode() {
     for (int x = 0; x < gridSize; x++) {
       for (int y = 0; y < gridSize; y++) {
         if (this.grid[x][y].hasMine) {
           push();
-            fill(0);
+            
             PVector drawPos = grid2worldPosition(this.grid[x][y]);
             rectMode(CENTER);
-            rect(drawPos.x+nodeSize/2, drawPos.y+nodeSize/2, nodeSize*0.5, nodeSize*0.5);
+            fill(bgColor);
+            
+            rect(drawPos.x+nodeSize/2, drawPos.y+nodeSize/2, nodeSize, nodeSize); //deleting kebab texture
+            
+            fill(0);
+            rect(drawPos.x+nodeSize/2, drawPos.y+nodeSize/2, nodeSize*0.5, nodeSize*0.5); // show mines
           pop();
         }
       }
     }
   }
+  
+  void showRevealed() {
+    for (int i = 0; i<revealed.size(); i++) {
+      if (revealed.get(i).minesAround != 0) {
+        fill(0);
+        text(str(revealed.get(i).minesAround), grid2worldPosition(revealed.get(i)).x + nodeSize/2, grid2worldPosition(revealed.get(i)).y+nodeSize/2); //display number of mines around the node
+      } 
+    }
+  }
 
-
+  void discoverArea(Node n){
+    //print("called:     |     "); print(n.xGrid+" "+n.yGrid); println("     |   revealed "+revealed.size());
+    
+    if(this.grid[n.xGrid][n.yGrid].minesAround > 0){
+     // Grid.revealed.add(n);
+     if(!this.grid[n.xGrid][n.yGrid].revealed)
+       Grid.revealNode(this.grid[n.xGrid][n.yGrid]);
+     return;
+    }
+    else{
+      for(int x = -1; x <= 1; x++){
+        for(int y = -1; y <= 1; y++){
+          Node newN = new Node();          
+          if(checkIndexValidity(n.xGrid+x, n.yGrid+y)) 
+            newN = this.grid[n.xGrid+x][n.yGrid+y];
+          else continue;
+          
+          if(!newN.hasMine && !newN.revealed && !newN.hasKebab){
+            revealNode(newN);
+            discoverArea(newN);
+          }
+        }
+      }
+    }
+  }
+  
+  void revealNode(Node n) { 
+    this.grid[n.xGrid][n.yGrid].revealed = true;
+    this.revealed.add(this.grid[n.xGrid][n.yGrid]);
+    if (!this.grid[n.xGrid][n.yGrid].hasMine) {
+      fill(0, 255, 0);   //green if doesn't have mine
+      rect(n.xGrid*nodeSize+1, n.yGrid*nodeSize, nodeSize, nodeSize);
+    } 
+  }
+  
+  boolean allKebabsPlaced(){
+    return true;
+  /*
+  for(int x = 0; x < gridSize; x++){
+    for(int y = 0; y < gridSize; y++){
+      println(this.grid[x][y].xGrid+" "+this.grid[x][y].yGrid+" "+this.grid[x][y].hasKebab);
+      if(this.grid[x][y].hasMine && !this.grid[x][y].hasKebab){
+        return false;
+      }
+    }
+  }
+  return true;
+  */
+  
+  //TODO
+  
+  
+  
+}
+    
   PVector grid2worldPosition(Node n) {    
     PVector position = new PVector();
     position.x = n.xGrid*nodeSize;
@@ -117,18 +169,6 @@ class Matrix {
       }
     }
   }
-
-
-  void revealNode(Node n) { 
-    this.grid[n.xGrid][n.yGrid].revealed = true;
-    if (!this.grid[n.xGrid][n.yGrid].hasMine) {
-      fill(0, 255, 0);   //green if doesn't have mine
-      rect(n.xGrid*nodeSize+1, n.yGrid*nodeSize, nodeSize, nodeSize);
-    } else {
-      //ce vidimo
-    }
-  }
-
 
 
 

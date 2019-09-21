@@ -3,7 +3,9 @@ class Node {
   int xGrid = 0;
   int yGrid = 0;
   boolean hasMine = false;
+  boolean hasKebab = false;
   boolean revealed = false;
+  
   int minesAround;
 
   Node() {  }
